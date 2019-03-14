@@ -75,7 +75,7 @@ func getParentFlowid(input string) (uint64, uint64, error) {
 
 func match2Ip(input []string) string {
 	var out string
-	r, err := regexp.Compile("(\\w{4})(\\w{4})/(\\w{4})(\\w{4})")
+	r, err := regexp.Compile("(\\w{2})(\\w{2})(\\w{2})(\\w{2})/(\\w{2})(\\w{2})(\\w{2})(\\w{2})")
 	if err != nil {
 		return ""
 	}
@@ -84,10 +84,10 @@ func match2Ip(input []string) string {
 		for _, m := range input {
 			if match := r.FindAllStringSubmatch(m, -1); match != nil {
 				lst := match[0]
-				ip1, _ := strconv.ParseUint(lst[1], 16, 16)
-				ip2, _ := strconv.ParseUint(lst[2], 16, 16)
-				msk1, _ := strconv.ParseUint(lst[3], 16, 16)
-				msk2, _ := strconv.ParseUint(lst[4], 16, 16)
+				ip1, _ := strconv.ParseUint(lst[1]+lst[2], 16, 16)
+				ip2, _ := strconv.ParseUint(lst[3]+lst[4], 16, 16)
+				msk1, _ := strconv.ParseUint(lst[5]+lst[6], 16, 16)
+				msk2, _ := strconv.ParseUint(lst[7]+lst[8], 16, 16)
 
 				ip1 = ip1 & msk1
 				ip2 = ip2 & msk2
@@ -110,26 +110,34 @@ func match2Ip(input []string) string {
 				}
 			}
 		}
+		out = out[:len(out)-1] // Cut last ':' or '.'
 	} else { // IPv4
 		for _, m := range input {
 			if match := r.FindAllStringSubmatch(m, -1); match != nil {
 				lst := match[0]
 				ip1, _ := strconv.ParseUint(lst[1], 16, 16)
 				ip2, _ := strconv.ParseUint(lst[2], 16, 16)
-				msk1, _ := strconv.ParseUint(lst[3], 16, 16)
-				msk2, _ := strconv.ParseUint(lst[4], 16, 16)
+				ip3, _ := strconv.ParseUint(lst[3], 16, 16)
+				ip4, _ := strconv.ParseUint(lst[4], 16, 16)
+				msk1, _ := strconv.ParseUint(lst[5], 16, 16)
+				msk2, _ := strconv.ParseUint(lst[6], 16, 16)
+				msk3, _ := strconv.ParseUint(lst[7], 16, 16)
+				msk4, _ := strconv.ParseUint(lst[8], 16, 16)
 
 				ip1 = ip1 & msk1
 				ip2 = ip2 & msk2
+				ip3 = ip3 & msk3
+				ip4 = ip4 & msk4
 
 				sip1 := strconv.FormatUint(ip1, 10)
 				sip2 := strconv.FormatUint(ip2, 10)
+				sip3 := strconv.FormatUint(ip3, 10)
+				sip4 := strconv.FormatUint(ip4, 10)
 
-				out += sip1 + "." + sip2 + "."
+				out = sip1 + "." + sip2 + "." + sip3 + "." + sip4
 			}
 		}
 	}
-	out = out[:len(out)-1] // Cut last ':' or '.'
 
 	return out
 }
