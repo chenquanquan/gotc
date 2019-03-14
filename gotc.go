@@ -235,7 +235,7 @@ func createFilter(ip, limit, burst, dev string) error {
 	return nil
 }
 
-// deleteFilter : delter the tc filter item corresponding to the ip
+// deleteFilter - delete the tc filter item corresponding to the ip
 func deleteFilter(ip, dev string) error {
 	cmdShowFilter := fmt.Sprintf(strShowFilter, dev)
 	/* The result is like this:
@@ -295,7 +295,7 @@ func deleteFilter(ip, dev string) error {
 	return nil
 }
 
-// GetNetDev : get network device by ip address
+// GetNetDev - get network device by ip address
 func GetNetDev(ip string) (string, error) {
 	inf, err := net.Interfaces()
 	if err != nil {
@@ -321,6 +321,30 @@ func GetNetDev(ip string) (string, error) {
 	return "", errors.New("No this ip")
 }
 
+// DeleteClass - delete the filter with class by ip address
+func DeleteClass(ip string) error {
+	initCmdForIpv4()
+
+	dev, err := GetNetDev(ip)
+	if err != nil {
+		return err
+	}
+
+	return deleteFilter(ip, dev)
+}
+
+// DeleteClassIpv6 - delete the filter with class by ipv6 address
+func DeleteClassIpv6(ip string) error {
+	initCmdForIpv6()
+
+	dev, err := GetNetDev(ip)
+	if err != nil {
+		return err
+	}
+
+	return deleteFilter(ip, dev)
+}
+
 // SetBandWidthLimit - Set bandwidth with ipv4 address
 func SetBandWidthLimit(ip, limit, burst string) error {
 	initCmdForIpv4()
@@ -335,12 +359,7 @@ func SetBandWidthLimit(ip, limit, burst string) error {
 		return err
 	}
 
-	err = createFilter(ip, limit, burst, dev)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return createFilter(ip, limit, burst, dev)
 }
 
 // SetBandWidthLimitIpv6 - Set bandwidth with ipv6 address
@@ -357,10 +376,5 @@ func SetBandWidthLimitIpv6(ip, limit, burst string) error {
 		return err
 	}
 
-	err = createFilter(ip, limit, burst, dev)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return createFilter(ip, limit, burst, dev)
 }
